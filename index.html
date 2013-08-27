@@ -22,54 +22,52 @@
         <![endif]-->
 
         <!-- Add your site or application content here -->
-        <div id="container" class="clearfix" ng-controller="LocationCtrl">
-            <div id="form-panel">
+        <div id="container" class="clearfix">
+            <div id="form-panel" ng-controller="LocationCtrl">
                 <form ng-submit="addLocation()">
                     <input type="text" name="location" placeholder="Format: City, State" ng-model="locationName"><button type="submit" value="add">Submit</button>
                 </form>
                 <br>
                 Select a city to check its weather.
                 <ul>
-                    <li ng-repeat="location in locations"><a href="" ng-click="displayLocation(location)">{{ location.name }}</a></li>
+                    <li ng-repeat="location in locations"><a href="" ng-click="selectedLocation(location)">{{ location.name }}</a></li>
                 </ul>
             </div>
-             <div id="location-panel" ng-controller="LocationDetailCtrl" ng-show="currentLocation">
+             <div id="location-panel" ng-controller="LocationDetailCtrl" ng-show="currentSelectedLocation">
                 <div>
                     <div>
-                        <h1>{{ currentLocation.name }}</h1>
+                        <h1>{{ currentSelectedLocation.name }}</h1>
                         <ul id="display-type" class="clearfix">
-                            <li>Hourly Forecast</li>
-                            <li>10-Day Forecast</li>
+                            <li ng-click="pane = 1">Hourly Forecast</li>
+                            <li ng-click="pane = 2">10-Day Forecast</li>
                         </ul>
-                        <div>
+                        <div ng-show="pane == 1">
                             <ul id="hourly-forecast">
-                                <li class="clearfix">
+                                <li class="clearfix" ng-repeat="entry in hourlyResults">
                                     <div class="dates">
-                                        <span class="time"></span>
-                                        <!-- ko if: shouldShowDay -->
-                                        <span class="formatted-date"></span>
-                                        <!-- /ko -->
+                                        <span class="time">{{ entry.time }}</span>
+                                        <span class="formatted-date" ng-show="entry.shouldShowDate() == true">{{ entry.formatted_date }}</span>
                                     </div>
-                                    <span class="temperature"></span>
+                                    <span class="temperature">{{ entry.temp }}</span>
                                     <div class="condition-wrapper">
-                                        <img  />
-                                        <span class="condition"></span>
+                                        <img src="{{ entry.icon_url }}" />
+                                        <span class="condition">{{ entry.condition }}</span>
                                     </div>
                                     <div class="humidity">
                                         <span class="label">Humidity: </span>
-                                        <span></span>
+                                        <span>{{ entry.humidity }}</span>
                                     </div>
                                 </li>
                             </ul>
                         </div>
-                        <div data-bind="visible: $parent.displayType() == '10day'">
-                            <ul id="tenday-forecast" data-bind="foreach: tenDayForecast">
-                                <li>
-                                    <span></span>
-                                    <span></span>
-                                    <span></span>
-                                    <span></span>
-                                    <img />
+                        <div ng-show="pane == 2">
+                            <ul id="tenday-forecast">
+                                <li ng-repeat="entry in tenDayResults">
+                                    <span>{{ entry.time }}</span>
+                                    <span>{{ entry.high }}</span>
+                                    <span>{{ entry.low }}</span>
+                                    <span>{{ entry.condition }}</span>
+                                    <img src="{{ entry.icon_url }}" />
                                 </li>
                             </ul>
                         </div>

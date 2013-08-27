@@ -2,52 +2,82 @@
 
 var app = angular.module('weatherApp', []);
 
-app.factory('appMessageRelay', function() {
-	var appMessageRelayInstance;
-	return appMessageRelayInstance;
+app.factory('panelRelayService', function($rootScope) {
+	var relayService = {};
+
+	relayService.prepForBroadcast = function(location) {
+		this.location = location;
+		this.broadcastNotification(this.location);
+	}
+
+	relayService.broadcastNotification = function(location) {
+		$rootScope.$broadcast('handleLocationUpdate', location);
+	}
+
+	return relayService;
 });
 
-function LocationDetailCtrl($scope, appMessageRelay) {
-	$scope.currentLocation = null;
-	$scope.displayLocation = function(location) {
-		$scope.currentLocation = location;
-		$scope.currentLocation.city = $scope.currentLocation.name.split(',')[0].replace(/\s+/g, '_');
-		$scope.currentLocation.state = $scope.currentLocation.name.split(',')[1].replace(/\s+/g, '');
-		$scope.getCurrentWeather($scope.currentLocation);
-	};
+app.controller('LocationDetailCtrl', ['$scope', '$http', 'panelRelayService', function($scope, $http, panelRelayService) {
 
-	$scope.getCurrentWeather = function(location) {
-		var endpointURLs = {
-			// hourlyForecast: 'http://api.wunderground.com/api/420cc13d75d8f243/hourly/q/'+$scope.currentLocation.state+'/'+$scope.currentLocation.city+'.json?callback=?',
-			// tenDayForecast: 'http://api.wunderground.com/api/420cc13d75d8f243/forecast10day/q/'+$scope.currentLocation.state+'/'+$scope.currentLocation.city+'.json?callback=?'
-			hourlyForecast: "/js/hourly.json",
-			tenDayForecast: "/js/10day.json"
+
+	$scope.$on('handleLocationUpdate', function(event, location) {
+		$scope.currentSelectedLocation = location;
+		$scope.loadData = function(location) {
+			var endpointURLs = {
+				hourlyForecast: 'http://api.wunderground.com/api/420cc13d75d8f243/hourly/q/'+$scope.currentSelectedLocation.state+'/'+$scope.currentSelectedLocation.city+'.json?callback=JSON_CALLBACK',
+				tenDayForecast: 'http://api.wunderground.com/api/420cc13d75d8f243/forecast10day/q/'+$scope.currentSelectedLocation.state+'/'+$scope.currentSelectedLocation.city+'.json?callback=JSON_CALLBACK'
+				// hourlyForecast: "/js/hourly.json",
+				// tenDayForecast: "/js/10day.json"
+			};
+			var hourlyResults = [];
+			var tenDayResults = [];
+
+			$http.jsonp(endpointURLs.hourlyForecast).
+				success(function(data) {
+					angular.forEach(data.hourly_forecast, function(data) {
+						var obj = {
+							time: data.FCTTIME.civil,
+							formatted_date: data.FCTTIME.month_name + " " + data.FCTTIME.mday,
+							temp: data.temp.english + "F",
+							humidity: data.humidity + "%",
+							condition: data.condition, 
+							icon_url: data.icon_url,
+							shouldShowDate: function() {
+								if ((data.FCTTIME.hour == "23") || (data.FCTTIME.hour == "0")) {
+									return true;
+								} else {
+									return false;
+								}
+							}
+						}
+						hourlyResults.push(obj);
+					});
+				});
+
+
+			$http.jsonp(endpointURLs.tenDayForecast).
+				success(function(data) {
+					angular.forEach(data.forecast.simpleforecast.forecastday, function(data){
+						var obj = {
+							time: data.date.pretty, 
+							high: data.high.fahrenheit + "F",
+							low: data.low.fahrenheit + "F", 
+							conditions: data.conditions,
+							icon_url: data.icon_url
+						}
+						tenDayResults.push(obj);
+					});
+				});
+
+			$scope.hourlyResults = hourlyResults;
+			$scope.tenDayResults = tenDayResults;
 		};
-		$http({ method: 'GET', url: endpointURLs.hourlyForecast }).
-			success(function(data) {
-				// console.log(location);
-				console.log(data);
-				// $scope.currentLocation.temperature = data.temperature.english + "F",
-				// $scope.currentLocation.humidity = data.humidity + "%",
-				// $scope.currentLocation.condition = data.condition, 
-				// $scope.currentLocation.icon_url = data.icon_url
-				
-			});
 
-		// $http({ method: 'GET', url: endpointURLs.tenDayForecast }).
-		// 	success(function(data) {
-				// $scope.currentLocation.time = data.date.pretty, 
-				// $scope.currentLocation.high = data.high.fahrenheit + "F",
-				// $scope.currentLocation.low = data.low.fahrenheit + "F", 
-				// $scope.currentLocation.conditions = data.conditions,
-				// $scope.currentLocation.icon_url = data.icon_url
-				// console.log(data);
-			// });
-		
-	};
-}
+		$scope.loadData();
+	});
+}]);
 
-function LocationCtrl($scope, $http, appMessageRelay) {
+app.controller('LocationCtrl', ['$scope', 'panelRelayService', function($scope, panelRelayService) {
 
 	$scope.locations = [
 		{ name: 'New York, NY' }, 
@@ -59,5 +89,13 @@ function LocationCtrl($scope, $http, appMessageRelay) {
 		$scope.locationName = '';
 	};
 
+	$scope.selectedLocation = function(location) {
+		$scope.currentSelectedLocation = location;
+		$scope.currentSelectedLocation.city = $scope.currentSelectedLocation.name.split(',')[0].replace(/\s+/g, '_');
+		$scope.currentSelectedLocation.state = $scope.currentSelectedLocation.name.split(',')[1].replace(/\s+/g, '');
+
+		panelRelayService.prepForBroadcast($scope.currentSelectedLocation);
+	};
 	
-}
+}]);
+
