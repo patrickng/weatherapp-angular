@@ -1,16 +1,13 @@
-function LocationCtrl($scope, $http) {
-	'use strict';
+'use strict';
 
-	$scope.locations = [
-		{ name: 'New York, NY' }, 
-		{ name: 'San Francisco, CA' }
-	];
+var app = angular.module('weatherApp', []);
 
-	$scope.addLocation = function() {
-		$scope.locations.push({ name: $scope.locationName });
-		$scope.locationName = '';
-	};
+app.factory('appMessageRelay', function() {
+	var appMessageRelayInstance;
+	return appMessageRelayInstance;
+});
 
+function LocationDetailCtrl($scope, appMessageRelay) {
 	$scope.currentLocation = null;
 	$scope.displayLocation = function(location) {
 		$scope.currentLocation = location;
@@ -48,4 +45,19 @@ function LocationCtrl($scope, $http) {
 			// });
 		
 	};
+}
+
+function LocationCtrl($scope, $http, appMessageRelay) {
+
+	$scope.locations = [
+		{ name: 'New York, NY' }, 
+		{ name: 'San Francisco, CA' }
+	];
+
+	$scope.addLocation = function() {
+		$scope.locations.push({ name: $scope.locationName });
+		$scope.locationName = '';
+	};
+
+	
 }
