@@ -8,77 +8,59 @@ module.exports = function(grunt) {
     banner: '/*! <%= pkg.title || pkg.name %> - v<%= pkg.version %> - ' +
       '<%= grunt.template.today("yyyy-mm-dd") %>\n' +
       '<%= pkg.homepage ? "* " + pkg.homepage + "\\n" : "" %>' +
-      '* Copyright (c) <%= grunt.template.today("yyyy") %> <%= pkg.author.name %>;' +
-      ' Licensed <%= _.pluck(pkg.licenses, "type").join(", ") %> */\n',
+      '* Copyright (c) <%= grunt.template.today("yyyy") %> <%= pkg.author.name %>;',
+    
+    // Define our source and build folders
+    js_src_path: 'js',
+    js_build_path: "build/js",
+    css_src_path: "css",
+    css_build_path: "build/css",
+
     // Task configuration.
     concat: {
       options: {
-        banner: '<%= banner %>',
-        stripBanners: true
+        separator: ';'
       },
-      dist: {
-        src: ['lib/<%= pkg.name %>.js'],
-        dest: 'dist/<%= pkg.name %>.js'
+      js: {
+        src: ['<%= js_src_path %>/*.js'],
+        dest: '<%= js_build_path %>/app.js'
+      },
+      css: {
+        src: ['<%= css_src_path %>/*.css'],
+        dest: '<%= css_build_path %>/app.css'   
       }
     },
     uglify: {
       options: {
         banner: '<%= banner %>'
       },
-      dist: {
-        src: '<%= concat.dist.dest %>',
-        dest: 'dist/<%= pkg.name %>.min.js'
+      js: {
+        src: '<%= concat.js.dest %>',
+        dest: '<%= js_build_path %>/app.min.js'
       }
     },
-    jshint: {
-      options: {
-        curly: true,
-        eqeqeq: true,
-        immed: true,
-        latedef: true,
-        newcap: true,
-        noarg: true,
-        sub: true,
-        undef: true,
-        unused: true,
-        boss: true,
-        eqnull: true,
-        browser: true,
-        globals: {
-          jQuery: true
-        },
-        all: ['Gruntfile.js', '/**/js/**']
-      },
-      gruntfile: {
-        src: 'Gruntfile.js'
-      },
-      lib_test: {
-        src: ['lib/**/*.js', 'test/**/*.js']
+    cssmin: {
+      css: {
+        src: '<%= concat.css.dest %>',
+        dest:'<%= css_build_path %>/app.min.css'
       }
-    },
-    qunit: {
-      files: ['test/**/*.html']
     },
     watch: {
-      lib_test: {
-        files: '<%= jshint.lib_test.src %>',
-        tasks: ['jshint:lib_test', 'qunit']
-      },
-      files: ["**/*.html", "**/js/**"],
-      tasks: 'default'
+      files: ["**/*.html", "**/*.js",  "**/js/**"],
+      tasks: 'reload'
     }
   });
 
   // These plugins provide necessary tasks.
   grunt.loadNpmTasks('grunt-contrib-concat');
+  // grunt.loadNpmTasks('grunt-contrib-jshint');
   grunt.loadNpmTasks('grunt-contrib-uglify');
-  grunt.loadNpmTasks('grunt-contrib-qunit');
-  grunt.loadNpmTasks('grunt-contrib-jshint');
+  grunt.loadNpmTasks('grunt-contrib-cssmin');
   grunt.loadNpmTasks('grunt-contrib-watch');
   grunt.loadNpmTasks('grunt-contrib-requirejs');
 
   // Default task.
-  grunt.registerTask('default', ['jshint', 'qunit', 'concat', 'uglify', 'reload']);
+  grunt.registerTask('default', ['concat', 'uglify', 'cssmin', 'reload']);
   grunt.registerTask("reload", "reload Chrome on OS X",
     function() {
       require("child_process").exec("osascript " +
@@ -87,5 +69,4 @@ module.exports = function(grunt) {
         "-e 'reload' " +
         "-e 'end tell'");
     });
-
 };

@@ -1,5 +1,8 @@
 {
   "name": "weatherapp-angular",
+  "author": {
+    "name": "Patrick Ng"
+  },
   "version": "0.1.0",
   "devDependencies": {
     "grunt": "~0.4.1",
@@ -8,6 +11,7 @@
     "grunt-contrib-uglify": "~0.2.2",
     "grunt-contrib-watch": "~0.5.2",
     "grunt-contrib-qunit": "~0.2.2",
-    "grunt-contrib-requirejs": "~2.1.8"
+    "grunt-contrib-requirejs": "~2.1.8",
+    "grunt-contrib-cssmin": "~0.6.1"
   }
 }

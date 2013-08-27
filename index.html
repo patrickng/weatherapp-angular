@@ -22,14 +22,60 @@
         <![endif]-->
 
         <!-- Add your site or application content here -->
-        <div ng-controller="WeatherAppCtrl">
-             <form ng-submit="addLocation()">
-                <input type="text" name="location" placeholder="Format: City, State" ng-model="locationName"><button type="submit" value="add">Submit</button>
-            </form>
-
-            <ul>
-                <li ng-repeat="location in locations">{{ location.name }}</li>
-            </ul>
+        <div id="container" class="clearfix" ng-controller="LocationCtrl">
+            <div id="form-panel">
+                <form ng-submit="addLocation()">
+                    <input type="text" name="location" placeholder="Format: City, State" ng-model="locationName"><button type="submit" value="add">Submit</button>
+                </form>
+                <br>
+                Select a city to check its weather.
+                <ul>
+                    <li ng-repeat="location in locations"><a href="" ng-click="displayLocation(location)">{{ location.name }}</a></li>
+                </ul>
+            </div>
+             <div id="location-panel" ng-show="currentLocation">
+                <div>
+                    <div>
+                        <h1>{{ currentLocation.name }}</h1>
+                        <ul id="display-type" class="clearfix">
+                            <li>Hourly Forecast</li>
+                            <li>10-Day Forecast</li>
+                        </ul>
+                        <div>
+                            <ul id="hourly-forecast">
+                                <li class="clearfix">
+                                    <div class="dates">
+                                        <span class="time"></span>
+                                        <!-- ko if: shouldShowDay -->
+                                        <span class="formatted-date"></span>
+                                        <!-- /ko -->
+                                    </div>
+                                    <span class="temperature"></span>
+                                    <div class="condition-wrapper">
+                                        <img  />
+                                        <span class="condition"></span>
+                                    </div>
+                                    <div class="humidity">
+                                        <span class="label">Humidity: </span>
+                                        <span></span>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                        <div data-bind="visible: $parent.displayType() == '10day'">
+                            <ul id="tenday-forecast" data-bind="foreach: tenDayForecast">
+                                <li>
+                                    <span></span>
+                                    <span></span>
+                                    <span></span>
+                                    <span></span>
+                                    <img />
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
