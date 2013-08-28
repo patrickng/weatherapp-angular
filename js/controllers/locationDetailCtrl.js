@@ -1,24 +1,6 @@
 'use strict';
 
-var app = angular.module('weatherApp', []);
-
-app.factory('panelRelayService', function($rootScope) {
-	var relayService = {};
-
-	relayService.prepForBroadcast = function(location) {
-		this.location = location;
-		this.broadcastNotification(this.location);
-	}
-
-	relayService.broadcastNotification = function(location) {
-		$rootScope.$broadcast('handleLocationUpdate', location);
-	}
-
-	return relayService;
-});
-
 app.controller('LocationDetailCtrl', ['$scope', '$http', 'panelRelayService', function($scope, $http, panelRelayService) {
-
 
 	$scope.$on('handleLocationUpdate', function(event, location) {
 		$scope.currentSelectedLocation = location;
@@ -76,26 +58,3 @@ app.controller('LocationDetailCtrl', ['$scope', '$http', 'panelRelayService', fu
 		$scope.loadData();
 	});
 }]);
-
-app.controller('LocationCtrl', ['$scope', 'panelRelayService', function($scope, panelRelayService) {
-
-	$scope.locations = [
-		{ name: 'New York, NY' }, 
-		{ name: 'San Francisco, CA' }
-	];
-
-	$scope.addLocation = function() {
-		$scope.locations.push({ name: $scope.locationName });
-		$scope.locationName = '';
-	};
-
-	$scope.selectedLocation = function(location) {
-		$scope.currentSelectedLocation = location;
-		$scope.currentSelectedLocation.city = $scope.currentSelectedLocation.name.split(',')[0].replace(/\s+/g, '_');
-		$scope.currentSelectedLocation.state = $scope.currentSelectedLocation.name.split(',')[1].replace(/\s+/g, '');
-
-		panelRelayService.prepForBroadcast($scope.currentSelectedLocation);
-	};
-	
-}]);
-
