@@ -15,6 +15,11 @@ app.controller('LocationCtrl', ['$scope', 'panelRelayService', 'locationStorageS
 		$scope.locationName = '';
 	};
 
+	$scope.removeLocation = function(location) {
+		$scope.locations.splice($scope.locations.indexOf(location), 1);
+		locationStorage.set($scope.locations);
+	};
+
 	$scope.selectedLocation = function(location) {
 		$scope.currentSelectedLocation = location;
 		$scope.currentSelectedLocation.city = $scope.currentSelectedLocation.name.split(',')[0].replace(/\s+/g, '_');

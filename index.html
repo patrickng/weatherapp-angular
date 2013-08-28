@@ -30,7 +30,7 @@
                 <br>
                 Select a city to check its weather.
                 <ul>
-                    <li ng-repeat="location in locations"><a href="" ng-click="selectedLocation(location)">{{ location.name }}</a></li>
+                    <li ng-repeat="location in locations"><a href="" ng-click="removeLocation(location)">x</a> <a href="" ng-click="selectedLocation(location)">{{ location.name }}</a></li>
                 </ul>
             </div>
              <div id="location-panel" ng-controller="LocationDetailCtrl" ng-show="currentSelectedLocation">
