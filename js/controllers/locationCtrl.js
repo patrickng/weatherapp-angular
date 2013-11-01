@@ -2,11 +2,11 @@
 
 app.controller('LocationCtrl', ['$scope', 'panelRelayService', 'locationStorageService', function($scope, panelRelay, locationStorage) {
 
-	if ((locationStorage.get() == null) || (locationStorage.get() == undefined) || (locationStorage.get() == "")) {
+	if ((typeof locationStorage.get() !== null) && (typeof locationStorage.get() !== "undefined")) {
+		$scope.locations = locationStorage.get();
+	} else {
 		$scope.locations = [{ name: 'New York, NY' }, { name: 'San Francisco, CA' }];
 		locationStorage.set($scope.locations);
-	} else {
-		$scope.locations = locationStorage.get();
 	}
 
 	$scope.addLocation = function() {
